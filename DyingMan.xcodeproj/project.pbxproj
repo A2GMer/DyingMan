@@ -18,6 +18,8 @@
 		9D7810F329C8742E00A20788 /* DyingManTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7810F229C8742E00A20788 /* DyingManTests.swift */; };
 		9D7810FD29C8742E00A20788 /* DyingManUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7810FC29C8742E00A20788 /* DyingManUITests.swift */; };
 		9D7810FF29C8742E00A20788 /* DyingManUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7810FE29C8742E00A20788 /* DyingManUITestsLaunchTests.swift */; };
+		9D78110C29C8749800A20788 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D78110B29C8749800A20788 /* Player.swift */; };
+		9D78110E29C874B500A20788 /* Enemy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D78110D29C874B500A20788 /* Enemy.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +54,8 @@
 		9D7810F829C8742E00A20788 /* DyingManUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DyingManUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D7810FC29C8742E00A20788 /* DyingManUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DyingManUITests.swift; sourceTree = "<group>"; };
 		9D7810FE29C8742E00A20788 /* DyingManUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DyingManUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		9D78110B29C8749800A20788 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		9D78110D29C874B500A20788 /* Enemy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enemy.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +106,7 @@
 		9D7810D729C8742B00A20788 /* DyingMan */ = {
 			isa = PBXGroup;
 			children = (
+				9D78110B29C8749800A20788 /* Player.swift */,
 				9D7810D829C8742B00A20788 /* AppDelegate.swift */,
 				9D7810DA29C8742B00A20788 /* GameScene.sks */,
 				9D7810DC29C8742B00A20788 /* Actions.sks */,
@@ -110,6 +115,7 @@
 				9D7810E229C8742B00A20788 /* Main.storyboard */,
 				9D7810E529C8742E00A20788 /* Assets.xcassets */,
 				9D7810E729C8742E00A20788 /* LaunchScreen.storyboard */,
+				9D78110D29C874B500A20788 /* Enemy.swift */,
 			);
 			path = DyingMan;
 			sourceTree = "<group>";
@@ -264,6 +270,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D78110C29C8749800A20788 /* Player.swift in Sources */,
+				9D78110E29C874B500A20788 /* Enemy.swift in Sources */,
 				9D7810DF29C8742B00A20788 /* GameScene.swift in Sources */,
 				9D7810E129C8742B00A20788 /* GameViewController.swift in Sources */,
 				9D7810D929C8742B00A20788 /* AppDelegate.swift in Sources */,
