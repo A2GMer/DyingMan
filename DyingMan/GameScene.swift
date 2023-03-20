@@ -23,6 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var gameState: GameState = .playing
     private var player = Player()
+    private let playerParent = SKNode()
     
     private var scoreLabel: SKLabelNode!
         private var score = 0 {
@@ -61,8 +62,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         physicsWorld.contactDelegate = self
-        // プレイヤーの追加
-        spawnPlayer()
+        
+        player.position = CGPoint(x: frame.midX, y: frame.minY + player.size.height / 2)
+        addChild(playerParent)
+        playerParent.addChild(player)
+        
         // 敵の追加
         let spawnEnemyAction = SKAction.run { [weak self] in
             self?.spawnEnemy()
@@ -157,12 +161,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if gameState == .playing {
             if touches.first != nil {
+                let playerPositionInScene: CGPoint
                 if let playerParent = player.parent {
-                    let playerPositionInScene = playerParent.convert(player.position, to: self)
-                    spawnBullet(isEnemy: false, position: playerPositionInScene)
+                    playerPositionInScene = playerParent.convert(player.position, to: self)
                 } else {
-                    spawnBullet(isEnemy: false, position: player.position)
+                    playerPositionInScene = player.position
                 }
+                spawnBullet(isEnemy: false, position: playerPositionInScene)
             }
         } else if gameState == .gameOver {
             restartGame()
