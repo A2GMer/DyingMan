@@ -160,6 +160,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 if let playerParent = player.parent {
                     let playerPositionInScene = playerParent.convert(player.position, to: self)
                     spawnBullet(isEnemy: false, position: playerPositionInScene)
+                } else {
+                    spawnBullet(isEnemy: false, position: player.position)
                 }
             }
         } else if gameState == .gameOver {
