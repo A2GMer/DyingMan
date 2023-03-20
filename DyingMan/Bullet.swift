@@ -15,6 +15,8 @@ class Bullet: SKSpriteNode {
         self.name = isEnemy ? "enemyBullet" : "playerBullet"
         self.physicsBody = SKPhysicsBody(texture: texture, size: self.size)
         self.physicsBody?.isDynamic = false
+        physicsBody?.categoryBitMask = isEnemy ? PhysicsCategory.enemyBullet.rawValue : PhysicsCategory.playerBullet.rawValue
+
     }
     
     required init?(coder aDecoder: NSCoder) {

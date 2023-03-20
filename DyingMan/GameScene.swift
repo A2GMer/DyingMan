@@ -20,6 +20,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // 弾丸の移動速度
     private let bulletMoveSpeed: TimeInterval = 1.0
     private let enemyBulletSpawnInterval: TimeInterval = 1.0
+    private var enemySpeed: CGFloat = 5.0
+    
     
     private var gameState: GameState = .playing
     private var player = Player()
@@ -83,43 +85,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(player)
     }
     
-    private func spawnEnemy() {
+    func spawnEnemy() {
         let enemy = Enemy()
-        let randomX = CGFloat(arc4random_uniform(UInt32(self.size.width - enemy.size.width))) + enemy.size.width / 2
-            enemy.position = CGPoint(x: randomX, y: self.size.height + enemy.size.height / 2)
+        let randomX = CGFloat.random(in: 0..<size.width)
+        enemy.position = CGPoint(x: randomX, y: size.height + enemy.size.height / 2)
         addChild(enemy)
-
-        let moveAction = SKAction.moveTo(y: -enemy.size.height, duration: enemyMoveSpeed)
-        let removeAction = SKAction.removeFromParent()
-        enemy.run(SKAction.sequence([moveAction, removeAction]))
         
-        let spawnBulletAction = SKAction.run { [weak self] in
-                self?.spawnBullet(isEnemy: true, position: enemy.position)
-            }
-            let waitAction = SKAction.wait(forDuration: enemyBulletSpawnInterval)
-            enemy.run(SKAction.repeatForever(SKAction.sequence([spawnBulletAction, waitAction])))
+        let moveDown = SKAction.moveBy(x: 0, y: -(size.height + enemy.size.height), duration: TimeInterval(enemySpeed))
+        let removeEnemy = SKAction.removeFromParent()
+        let sequence = SKAction.sequence([moveDown, removeEnemy])
+        enemy.run(sequence)
     }
-    
-    private func spawnBullet(isEnemy: Bool, position: CGPoint) {
-        let bullet = Bullet(isEnemy: isEnemy)
-        if player.parent != nil {
-            let positionInScene = convert(position, from: player.parent!)
-            bullet.position = CGPoint(x: positionInScene.x, y: positionInScene.y + bullet.size.height / 2)
-        }else{
-            bullet.position = CGPoint(x: position.x, y: position.y + bullet.size.height / 2)
-        }
-        
-        
-        addChild(bullet)
 
+    
+    func spawnBullet(from node: SKNode, isEnemy: Bool) {
+        let bullet = Bullet(isEnemy: isEnemy)
+        bullet.position = node.position
+        addChild(bullet)
+        
         let moveAction: SKAction
         if isEnemy {
-            moveAction = SKAction.moveTo(y: -bullet.size.height, duration: bulletMoveSpeed)
+            moveAction = SKAction.moveBy(x: 0, y: -size.height, duration: TimeInterval(bulletMoveSpeed))
         } else {
-            moveAction = SKAction.moveTo(y: self.size.height + bullet.size.height, duration: bulletMoveSpeed)
+            moveAction = SKAction.moveBy(x: 0, y: size.height, duration: TimeInterval(bulletMoveSpeed))
         }
-        let removeAction = SKAction.removeFromParent()
-        bullet.run(SKAction.sequence([moveAction, removeAction]))
+        let removeBulletAction = SKAction.removeFromParent()
+        let sequence = SKAction.sequence([moveAction, removeBulletAction])
+        bullet.run(sequence)
     }
 
     
@@ -160,14 +152,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if gameState == .playing {
-            if touches.first != nil {
-                let playerPositionInScene: CGPoint
-                if let playerParent = player.parent {
-                    playerPositionInScene = playerParent.convert(player.position, to: self)
-                } else {
-                    playerPositionInScene = player.position
-                }
-                spawnBullet(isEnemy: false, position: playerPositionInScene)
+            if let touch = touches.first {
+                let touchLocation = touch.location(in: self)
+                spawnBullet(from: player, isEnemy: false)
             }
         } else if gameState == .gameOver {
             restartGame()
@@ -205,11 +192,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         guard let bodyA = contact.bodyA.node, let bodyB = contact.bodyB.node else { return }
 
-        if bodyA.name == "bullet" && bodyB.name == "enemy" {
+        if bodyA.name == "playerBullet" && bodyB.name == "enemy" {
             bodyA.removeFromParent()
             bodyB.removeFromParent()
             score += 10
-        } else if bodyA.name == "enemy" && bodyB.name == "bullet" {
+        } else if bodyA.name == "enemy" && bodyB.name == "playerBullet" {
             bodyA.removeFromParent()
             bodyB.removeFromParent()
             score += 10
