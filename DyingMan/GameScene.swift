@@ -99,9 +99,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func spawnBullet(isEnemy: Bool, position: CGPoint) {
         let bullet = Bullet(isEnemy: isEnemy)
         if player.parent != nil {
-            _ = convert(position, from: player.parent!)
-//            bullet.position = CGPoint(x: positionInScene.x, y: positionInScene.y + bullet.size.height / 2)
-            bullet.position = CGPoint(x: position.x, y: position.y + bullet.size.height / 2)
+            let positionInScene = convert(position, from: player.parent!)
+            bullet.position = CGPoint(x: positionInScene.x, y: positionInScene.y + bullet.size.height / 2)
         }else{
             bullet.position = CGPoint(x: position.x, y: position.y + bullet.size.height / 2)
         }
@@ -156,28 +155,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
-        }
-        
-        for t in touches { self.touchDown(atPoint: t.location(in: self)) }
-        
-        for touch in touches {
-            let location = touch.location(in: self)
-            let nodes = self.nodes(at: location)
-                    
-            for node in nodes {
-                if node.name == "restartButton" {
-                    restartGame()
-                    break
-                }
-            }
-        }
         if gameState == .playing {
-            if let touch = touches.first {
-                _ = touch.location(in: self)
-                let playerPositionInScene = player.parent!.convert(player.position, to: self)
-                spawnBullet(isEnemy: false, position: playerPositionInScene)
+            if touches.first != nil {
+                if let playerParent = player.parent {
+                    let playerPositionInScene = playerParent.convert(player.position, to: self)
+                    spawnBullet(isEnemy: false, position: playerPositionInScene)
+                }
             }
         } else if gameState == .gameOver {
             restartGame()
