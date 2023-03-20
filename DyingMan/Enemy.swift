@@ -11,7 +11,7 @@ import SpriteKit
 class Enemy: SKSpriteNode {
     init() {
         let texture = SKTexture(imageNamed: "enemy")
-        super.init(texture: texture, color: .clear, size: texture.size())
+        super.init(texture: texture, color: .clear, size: CGSize(width: texture.size().width * 0.5, height: texture.size().height * 0.5))
         self.name = "enemy"
         self.physicsBody = SKPhysicsBody(texture: texture, size: self.size)
         self.physicsBody?.isDynamic = false
