@@ -46,7 +46,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                                               SKAction.removeFromParent()]))
         }
         
+        physicsWorld.contactDelegate = self
+        // プレイヤーの追加
+        spawnPlayer()
+        // 敵の追加
+        let spawnEnemyAction = SKAction.run { [weak self] in
+            self?.spawnEnemy()
+        }
+        let waitAction = SKAction.wait(forDuration: enemySpawnInterval)
+        run(SKAction.repeatForever(SKAction.sequence([spawnEnemyAction, waitAction])))
+        
         setupScoreLabel()
+    }
+    
+    private func spawnPlayer() {
+        let player = Player()
+        player.position = CGPoint(x: self.size.width / 2, y: player.size.height / 2 + 20)
+        addChild(player)
     }
     
     private func spawnEnemy() {
