@@ -8,7 +8,20 @@
 import SpriteKit
 import GameplayKit
 
+
+enum GameState {
+    case playing
+    case gameOver
+}
+
+
 class GameScene: SKScene, SKPhysicsContactDelegate {
+    
+    // 弾丸の移動速度
+    private let bulletMoveSpeed: TimeInterval = 1.0
+    
+    private var gameState: GameState = .playing
+    private var player = Player()
     
     private var scoreLabel: SKLabelNode!
         private var score = 0 {
@@ -76,6 +89,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             enemy.run(SKAction.sequence([moveAction, removeAction]))
         }
     
+    private func spawnBullet(isEnemy: Bool, position: CGPoint) {
+        let bullet = Bullet(isEnemy: isEnemy)
+        bullet.position = position
+        addChild(bullet) // この行を追加
+
+        let moveAction: SKAction
+        if isEnemy {
+            moveAction = SKAction.moveTo(y: -bullet.size.height, duration: bulletMoveSpeed)
+        } else {
+            moveAction = SKAction.moveTo(y: self.size.height + bullet.size.height, duration: bulletMoveSpeed)
+        }
+        let removeAction = SKAction.removeFromParent()
+        bullet.run(SKAction.sequence([moveAction, removeAction]))
+    }
+
+    
     private func setupScoreLabel() {
             scoreLabel = SKLabelNode(fontNamed: "Arial")
             scoreLabel.fontSize = 24
@@ -129,6 +158,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         }
                     }
                 }
+        if gameState == .playing {
+            spawnBullet(isEnemy: false, position: player.position)
+        } else if gameState == .gameOver {
+            restartGame()
+        }
     }
     
     private func restartGame() {
