@@ -98,7 +98,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     
-    func spawnBullet(from node: SKNode, isEnemy: Bool) {
+    func spawnBullet(from node: SKNode, isEnemy: Bool, at location: CGPoint) {
         let bullet = Bullet(isEnemy: isEnemy)
         bullet.position = node.position
         addChild(bullet)
@@ -153,8 +153,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if gameState == .playing {
             if let touch = touches.first {
-                let touchLocation = touch.location(in: self)
-                spawnBullet(from: player, isEnemy: false)
+                spawnBullet(from: player, isEnemy: false, at: touch.location(in: self))
             }
         } else if gameState == .gameOver {
             restartGame()
@@ -188,26 +187,49 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             enemyMoveSpeed *= 0.9
         }
     }
-    
-    func didBegin(_ contact: SKPhysicsContact) {
-        guard let bodyA = contact.bodyA.node, let bodyB = contact.bodyB.node else { return }
 
-        if bodyA.name == "playerBullet" && bodyB.name == "enemy" {
-            bodyA.removeFromParent()
-            bodyB.removeFromParent()
-            score += 10
-        } else if bodyA.name == "enemy" && bodyB.name == "playerBullet" {
-            bodyA.removeFromParent()
-            bodyB.removeFromParent()
-            score += 10
-        } else if (bodyA.name == "player" && bodyB.name == "enemy") || (bodyA.name == "player" && bodyB.name == "enemyBullet") {
-            gameState = .gameOver
-            gameOver()
-        } else if (bodyA.name == "enemy" && bodyB.name == "player") || (bodyA.name == "enemyBullet" && bodyB.name == "player") {
-            gameState = .gameOver
-            gameOver()
+    func didBegin(_ contact: SKPhysicsContact) {
+        var firstBody: SKPhysicsBody
+        var secondBody: SKPhysicsBody
+
+        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
+            firstBody = contact.bodyA
+            secondBody = contact.bodyB
+        } else {
+            firstBody = contact.bodyB
+            secondBody = contact.bodyA
+        }
+
+        if firstBody.categoryBitMask == PhysicsCategory.player && secondBody.categoryBitMask == PhysicsCategory.enemy {
+            // PlayerとEnemyが衝突した場合の処理を記述
+            if let playerNode = firstBody.node as? Player, let enemyNode = secondBody.node {
+                playerNode.takeDamage()
+                enemyNode.removeFromParent()
+                gameState = .gameOver
+                gameOver()
+            }
+        } else if firstBody.categoryBitMask == PhysicsCategory.enemy && secondBody.categoryBitMask == PhysicsCategory.playerBullet {
+            // EnemyとPlayer Bulletが衝突した場合の処理を記述
+            if let enemy = firstBody.node as? Enemy {
+                enemy.health -= 1
+                if enemy.health <= 0 {
+                    enemy.removeFromParent()
+                    score += 10
+                }
+            }
+            secondBody.node?.removeFromParent()
+        } else if firstBody.categoryBitMask == PhysicsCategory.playerBullet && secondBody.categoryBitMask == PhysicsCategory.enemy {
+            // Player BulletとEnemyが衝突した場合の処理を記述
+            if let enemy = secondBody.node as? Enemy {
+                enemy.health -= 1
+                if enemy.health <= 0 {
+                    enemy.removeFromParent()
+                }
+            }
+            firstBody.node?.removeFromParent()
         }
     }
+
     
     private func gameOver() {
         // ゲームオーバーラベルを表示

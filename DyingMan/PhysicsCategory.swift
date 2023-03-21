@@ -7,12 +7,10 @@
 
 import Foundation
 
-struct PhysicsCategory: OptionSet {
-    let rawValue: UInt32
-    
-    static let none = PhysicsCategory(rawValue: 0 << 0)
-    static let player = PhysicsCategory(rawValue: 1 << 0)
-    static let enemy = PhysicsCategory(rawValue: 1 << 1)
-    static let playerBullet = PhysicsCategory(rawValue: 1 << 2)
-    static let enemyBullet = PhysicsCategory(rawValue: 1 << 3)
+struct PhysicsCategory {
+    static let none: UInt32 = 0
+    static let player: UInt32 = 0b1
+    static let enemy: UInt32 = 0b10
+    static let playerBullet: UInt32 = 0b100
+    static let enemyBullet: UInt32 = 0b1000
 }

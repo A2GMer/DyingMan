@@ -14,12 +14,25 @@ class Bullet: SKSpriteNode {
         super.init(texture: texture, color: .clear, size: CGSize(width: texture.size().width * 0.5, height: texture.size().height * 0.5))
         self.name = isEnemy ? "enemyBullet" : "playerBullet"
         self.physicsBody = SKPhysicsBody(texture: texture, size: self.size)
-        self.physicsBody?.isDynamic = false
-        physicsBody?.categoryBitMask = isEnemy ? PhysicsCategory.enemyBullet.rawValue : PhysicsCategory.playerBullet.rawValue
-
+        self.physicsBody?.isDynamic = true
+        self.physicsBody?.affectedByGravity = false
+        physicsBody?.categoryBitMask = isEnemy ? PhysicsCategory.enemyBullet : PhysicsCategory.playerBullet
+        
+        if isEnemy {
+            self.name = "enemyBullet"
+            self.physicsBody?.categoryBitMask = PhysicsCategory.enemyBullet
+            self.physicsBody?.contactTestBitMask = PhysicsCategory.player
+            self.physicsBody?.collisionBitMask = PhysicsCategory.player
+        } else {
+            self.name = "playerBullet"
+            self.physicsBody?.categoryBitMask = PhysicsCategory.playerBullet
+            self.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
+            self.physicsBody?.collisionBitMask = PhysicsCategory.enemy
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
