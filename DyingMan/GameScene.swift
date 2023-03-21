@@ -17,6 +17,13 @@ enum GameState {
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    
+    private var baseNode: SKSpriteNode!
+    private var stickNode: SKSpriteNode!
+    private var touch: UITouch?
+    private var isMoving: Bool = false
+    private var lastUpdateTime: TimeInterval = 0
+    
     // 弾丸の移動速度
     private let bulletMoveSpeed: TimeInterval = 1.0
     private let enemyBulletSpawnInterval: TimeInterval = 1.0
@@ -28,11 +35,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private let playerParent = SKNode()
     
     private var scoreLabel: SKLabelNode!
-        private var score = 0 {
-            didSet {
-                scoreLabel.text = "Score: \(score)"
-            }
+    private var score = 0 {
+        didSet {
+            scoreLabel.text = "Score: \(score)"
         }
+    }
     
     private var label : SKLabelNode?
     private var spinnyNode : SKShapeNode?
@@ -77,6 +84,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         run(SKAction.repeatForever(SKAction.sequence([spawnEnemyAction, waitAction])))
         
         setupScoreLabel()
+        
+        // ジョイスティックのベースを作成
+        baseNode = SKSpriteNode(color: .gray, size: CGSize(width: 100, height: 100))
+        baseNode.alpha = 0.4
+        baseNode.position = CGPoint(x: 120, y: 120)
+        addChild(baseNode)
+        
+        // ジョイスティックのスティックを作成
+        stickNode = SKSpriteNode(color: .white, size: CGSize(width: 50, height: 50))
+        stickNode.alpha = 0.4
+        stickNode.position = baseNode.position
+        addChild(stickNode)
     }
     
     private func spawnPlayer() {
@@ -96,7 +115,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let sequence = SKAction.sequence([moveDown, removeEnemy])
         enemy.run(sequence)
     }
-
+    
     
     func spawnBullet(from node: SKNode, isEnemy: Bool, at location: CGPoint) {
         let bullet = Bullet(isEnemy: isEnemy)
@@ -113,7 +132,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let sequence = SKAction.sequence([moveAction, removeBulletAction])
         bullet.run(sequence)
     }
-
+    
     
     private func setupScoreLabel() {
         scoreLabel = SKLabelNode(fontNamed: "Arial")
@@ -151,6 +170,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let firstTouch = touches.first else { return }
+        if baseNode.frame.contains(firstTouch.location(in: self)) {
+            touch = firstTouch
+        }
         if gameState == .playing {
             if let touch = touches.first {
                 spawnBullet(from: player, isEnemy: false, at: touch.location(in: self))
@@ -167,31 +190,63 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
+        guard let touch = touch else { return }
+        
+        let position = touch.location(in: self)
+        let maxDistance: CGFloat = baseNode.size.width / 2
+        let distance = sqrt(pow(position.x - baseNode.position.x, 2) + pow(position.y - baseNode.position.y, 2))
+        let angle = atan2(position.y - baseNode.position.y, position.x - baseNode.position.x)
+        
+        if distance <= maxDistance {
+            stickNode.position = position
+        } else {
+            stickNode.position.x = baseNode.position.x + cos(angle) * maxDistance
+            stickNode.position.y = baseNode.position.y + sin(angle) * maxDistance
+        }
+        if distance <= maxDistance {
+            stickNode.position = position
+        } else {
+            stickNode.position.x = baseNode.position.x + cos(angle) * maxDistance
+            stickNode.position.y = baseNode.position.y + sin(angle) * maxDistance
+        }
+        isMoving = true
     }
     
+    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
+        if let touch = touch, touches.contains(touch) {
+            stickNode.position = baseNode.position
+            self.touch = nil
+            isMoving = false
+        }
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
+        touchesEnded(touches, with: event)
+        isMoving = false
     }
     
     
     override func update(_ currentTime: TimeInterval) {
+        // 以前の更新時間を取得し、現在の更新時間を保存
+        let deltaTime = currentTime - lastUpdateTime
+        lastUpdateTime = currentTime
+        
         // Called before each frame is rendered
         if score >= stage * 100 {
             stage += 1
             enemySpawnInterval *= 0.9
             enemyMoveSpeed *= 0.9
         }
+        
+        // updatePlayerPosition を呼び出す際に deltaTime を渡す
+        updatePlayerPosition(deltaTime: deltaTime)
     }
-
+    
     func didBegin(_ contact: SKPhysicsContact) {
         var firstBody: SKPhysicsBody
         var secondBody: SKPhysicsBody
-
+        
         if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
             firstBody = contact.bodyA
             secondBody = contact.bodyB
@@ -199,7 +254,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             firstBody = contact.bodyB
             secondBody = contact.bodyA
         }
-
+        
         if firstBody.categoryBitMask == PhysicsCategory.player && secondBody.categoryBitMask == PhysicsCategory.enemy {
             // PlayerとEnemyが衝突した場合の処理を記述
             if let playerNode = firstBody.node as? Player, let enemyNode = secondBody.node {
@@ -229,7 +284,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             firstBody.node?.removeFromParent()
         }
     }
-
+    
     
     private func gameOver() {
         // ゲームオーバーラベルを表示
@@ -239,7 +294,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         gameOverLabel.zPosition = 100
         gameOverLabel.text = "Game Over"
         addChild(gameOverLabel)
-            
+        
         // リスタートボタンを表示
         let restartButton = SKLabelNode(fontNamed: "Arial")
         restartButton.fontSize = 24
@@ -249,4 +304,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         restartButton.text = "Tap to Restart"
         addChild(restartButton)
     }
+    
+    private func updatePlayerPosition(deltaTime: TimeInterval) {
+        if isMoving {
+            let speed: CGFloat = 500
+            
+            let angle = atan2(stickNode.position.y - baseNode.position.y, stickNode.position.x - baseNode.position.x)
+            let distance = sqrt(pow(stickNode.position.x - baseNode.position.x, 2) + pow(stickNode.position.y - baseNode.position.y, 2))
+            let maxDistance: CGFloat = baseNode.size.width / 2
+            
+            let velocity = distance / maxDistance
+            
+            let dx = cos(angle) * speed * velocity * CGFloat(deltaTime)
+            let dy = sin(angle) * speed * velocity * CGFloat(deltaTime)
+            
+            player.position.x += dx
+            player.position.y += dy
+            
+            // Add these lines to clamp the player's position
+            player.position.x = min(max(player.position.x, player.size.width / 2), size.width - player.size.width / 2)
+            player.position.y = min(max(player.position.y, player.size.height / 2), size.height - player.size.height / 2)
+        }
+    }
+    
 }

@@ -32,7 +32,7 @@ class Enemy: SKSpriteNode {
         if !isHit {
             isHit = true
             health -= 1
-
+            
             if health <= 0 {
                 removeFromParent()
             } else {
@@ -47,5 +47,5 @@ class Enemy: SKSpriteNode {
             }
         }
     }
-
+    
 }
