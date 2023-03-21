@@ -171,6 +171,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let firstTouch = touches.first else { return }
+        
+        // Add these lines to move the joystick base and stick to the touched location
+        baseNode.position = firstTouch.location(in: self)
+        stickNode.position = firstTouch.location(in: self)
+        
+        
         if baseNode.frame.contains(firstTouch.location(in: self)) {
             touch = firstTouch
         }
