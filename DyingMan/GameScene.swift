@@ -72,7 +72,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         physicsWorld.contactDelegate = self
         
-        player.position = CGPoint(x: frame.midX, y: frame.minY + player.size.height / 2)
+        player.position = CGPoint(x: frame.midX, y: frame.midY)
         addChild(playerParent)
         playerParent.addChild(player)
         
@@ -100,7 +100,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func spawnPlayer() {
         let player = Player()
-        player.position = CGPoint(x: self.size.width / 2, y: player.size.height / 2 + 20)
+        player.position = CGPoint(x: self.size.width / 2, y: player.size.height / 2)
         addChild(player)
     }
     

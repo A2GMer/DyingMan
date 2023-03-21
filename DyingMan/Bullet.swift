@@ -11,7 +11,7 @@ import SpriteKit
 class Bullet: SKSpriteNode {
     init(isEnemy: Bool) {
         let texture = SKTexture(imageNamed: isEnemy ? "enemyBullet" : "playerBullet")
-        super.init(texture: texture, color: .clear, size: CGSize(width: texture.size().width * 0.5, height: texture.size().height * 0.5))
+        super.init(texture: texture, color: .clear, size: CGSize(width: texture.size().width * 0.1, height: texture.size().height * 0.1))
         self.name = isEnemy ? "enemyBullet" : "playerBullet"
         self.physicsBody = SKPhysicsBody(texture: texture, size: self.size)
         self.physicsBody?.isDynamic = true

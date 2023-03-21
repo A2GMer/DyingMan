@@ -12,7 +12,7 @@ class Player: SKSpriteNode {
     private var isHit = false
     init() {
         let texture = SKTexture(imageNamed: "player")
-        super.init(texture: texture, color: .clear, size: CGSize(width: texture.size().width * 0.5, height: texture.size().height * 0.5))
+        super.init(texture: texture, color: .clear, size: CGSize(width: texture.size().width * 0.2, height: texture.size().height * 0.2))
         self.name = "player"
         self.physicsBody = SKPhysicsBody(circleOfRadius: size.width / 2)
         self.physicsBody?.affectedByGravity = false
