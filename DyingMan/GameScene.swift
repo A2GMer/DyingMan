@@ -96,6 +96,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         stickNode.alpha = 0.4
         stickNode.position = baseNode.position
         addChild(stickNode)
+        
+        
+        // 定期的な弾の発射
+        let bulletSpawnAction = SKAction.run { [weak self] in
+            guard let self = self else { return }
+            self.spawnBullet(from: self.player, isEnemy: false, at: self.player.position)
+        }
+        let bulletWaitAction = SKAction.wait(forDuration: 0.5) // 0.5秒ごとに発射
+        run(SKAction.repeatForever(SKAction.sequence([bulletSpawnAction, bulletWaitAction])))
     }
     
     private func spawnPlayer() {
@@ -179,13 +188,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if baseNode.frame.contains(firstTouch.location(in: self)) {
             touch = firstTouch
-        }
-        if gameState == .playing {
-            if let touch = touches.first {
-                spawnBullet(from: player, isEnemy: false, at: touch.location(in: self))
-            }
-        } else if gameState == .gameOver {
-            restartGame()
         }
     }
     
