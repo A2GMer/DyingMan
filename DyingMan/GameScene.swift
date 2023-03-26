@@ -294,7 +294,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    private func gameOver() {
+    func gameOver() {
+        // SKActionの実行を停止する
+        removeAllActions()
+        
         // ゲームオーバーラベルを表示
         let gameOverLabel = SKLabelNode(fontNamed: "Arial")
         gameOverLabel.fontSize = 48
