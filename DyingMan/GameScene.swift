@@ -56,6 +56,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(gameCamera)
         camera = gameCamera
         
+        let background = SKSpriteNode(imageNamed: "Sky")
+        background.position = CGPoint(x: frame.midX, y: frame.midY)
+        background.size = self.size // 画面のサイズに背景画像を合わせる
+        addChild(background)
+        
         // Get label node from scene and store it for use later
         self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
         if let label = self.label {
