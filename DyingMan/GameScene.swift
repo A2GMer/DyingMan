@@ -14,9 +14,7 @@ enum GameState {
     case gameOver
 }
 
-
 class GameScene: SKScene, SKPhysicsContactDelegate {
-    
     
     private var baseNode: SKSpriteNode!
     private var stickNode: SKSpriteNode!
@@ -97,7 +95,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         stickNode.position = baseNode.position
         addChild(stickNode)
         
-        
         // 定期的な弾の発射
         let bulletSpawnAction = SKAction.run { [weak self] in
             guard let self = self else { return }
@@ -125,7 +122,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         enemy.run(sequence)
     }
     
-    
     func spawnBullet(from node: SKNode, isEnemy: Bool, at location: CGPoint) {
         let bullet = Bullet(isEnemy: isEnemy)
         bullet.position = node.position
@@ -141,7 +137,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let sequence = SKAction.sequence([moveAction, removeBulletAction])
         bullet.run(sequence)
     }
-    
     
     private func setupScoreLabel() {
         scoreLabel = SKLabelNode(fontNamed: "Arial")
@@ -185,6 +180,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         baseNode.position = firstTouch.location(in: self)
         stickNode.position = firstTouch.location(in: self)
         
+        // リスタートボタンをタップしたかどうかを判定する
+        if gameState == .gameOver && self.contains(firstTouch.location(in: self)) {
+            restartGame()
+            return
+        }
         
         if baseNode.frame.contains(firstTouch.location(in: self)) {
             touch = firstTouch
@@ -192,9 +192,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func restartGame() {
-        let newScene = GameScene(size: self.size)
-        let transition = SKTransition.crossFade(withDuration: 0.5)
-        self.view?.presentScene(newScene, transition: transition)
+        // 現在のシーンを再読み込みしてリスタートする
+        if let currentScene = self.scene, let view = self.view {
+            let transition = SKTransition.crossFade(withDuration: 0.5)
+            let newScene = GameScene(size: self.size)
+            view.presentScene(newScene, transition: transition)
+        }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -220,7 +223,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         isMoving = true
     }
     
-    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touch, touches.contains(touch) {
             stickNode.position = baseNode.position
@@ -233,7 +235,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         touchesEnded(touches, with: event)
         isMoving = false
     }
-    
     
     override func update(_ currentTime: TimeInterval) {
         // 以前の更新時間を取得し、現在の更新時間を保存
@@ -293,7 +294,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    
     func gameOver() {
         // SKActionの実行を停止する
         removeAllActions()
@@ -337,5 +337,4 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             player.position.y = min(max(player.position.y, player.size.height / 2), size.height - player.size.height / 2)
         }
     }
-    
 }
