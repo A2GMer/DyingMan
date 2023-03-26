@@ -8,13 +8,17 @@
 import SpriteKit
 import GameplayKit
 
-
 enum GameState {
     case playing
     case gameOver
 }
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
+    
+    var gameCamera: SKCameraNode!
+    
+    var backgroundTiles: [SKSpriteNode] = []
+    let backgroundTileHeight: CGFloat = 2000.0
     
     private var baseNode: SKSpriteNode!
     private var stickNode: SKSpriteNode!
@@ -47,6 +51,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var stage = 1
     
     override func didMove(to view: SKView) {
+        
+        gameCamera = SKCameraNode()
+        addChild(gameCamera)
+        camera = gameCamera
         
         // Get label node from scene and store it for use later
         self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
@@ -102,6 +110,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         let bulletWaitAction = SKAction.wait(forDuration: 0.5) // 0.5秒ごとに発射
         run(SKAction.repeatForever(SKAction.sequence([bulletSpawnAction, bulletWaitAction])))
+        
+        createBackgroundTiles()
     }
     
     private func spawnPlayer() {
@@ -250,6 +260,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // updatePlayerPosition を呼び出す際に deltaTime を渡す
         updatePlayerPosition(deltaTime: deltaTime)
+        
+        
+        scrollBackgroundTiles()
+        // Update camera position
+        gameCamera.position.x = self.size.width / 2
+        gameCamera.position.y = player.position.y
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -337,4 +353,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             player.position.y = min(max(player.position.y, player.size.height / 2), size.height - player.size.height / 2)
         }
     }
+    
+    func createBackgroundTiles() {
+        let tileCount = Int(ceil(size.height / backgroundTileHeight)) + 1
+        for i in 0..<tileCount {
+            let backgroundTile = SKSpriteNode(color: .gray, size: CGSize(width: size.width, height: backgroundTileHeight))
+            backgroundTile.position = CGPoint(x: size.width / 2, y: CGFloat(i) * backgroundTileHeight)
+            backgroundTile.zPosition = -1
+            addChild(backgroundTile)
+            backgroundTiles.append(backgroundTile)
+        }
+    }
+    
+    func scrollBackgroundTiles() {
+        for tile in backgroundTiles {
+            if player.position.y - tile.position.y > backgroundTileHeight {
+                tile.position = CGPoint(x: tile.position.x, y: tile.position.y + CGFloat(backgroundTiles.count) * backgroundTileHeight)
+            }
+        }
+    }
+
 }
