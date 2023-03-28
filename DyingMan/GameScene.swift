@@ -17,6 +17,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var gameCamera: SKCameraNode!
     
+    let maxEnemies = 10
+    var enemies = [Enemy]()
+    
     var backgroundTiles: [SKSpriteNode] = []
     let backgroundTileHeight: CGFloat = 2000.0
     
@@ -130,10 +133,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let randomX = CGFloat.random(in: 0..<size.width)
         enemy.position = CGPoint(x: randomX, y: size.height + enemy.size.height / 2)
         addChild(enemy)
+        enemies.append(enemy)
+        
+        if enemies.count > maxEnemies {
+            removeOldestEnemy()
+        }
         
         let moveDown = SKAction.moveBy(x: 0, y: -(size.height + enemy.size.height), duration: TimeInterval(enemySpeed))
-        let removeEnemy = SKAction.removeFromParent()
-        let sequence = SKAction.sequence([moveDown, removeEnemy])
+        let sequence = SKAction.sequence([moveDown])
         enemy.run(sequence)
     }
     
@@ -356,7 +363,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // Add these lines to clamp the player's position
             player.position.x = min(max(player.position.x, player.size.width / 2), size.width - player.size.width / 2)
             player.position.y = player.position.y
-
         }
     }
     
@@ -376,6 +382,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if player.position.y - tile.position.y > backgroundTileHeight {
                 tile.position = CGPoint(x: tile.position.x, y: tile.position.y + CGFloat(backgroundTiles.count) * backgroundTileHeight)
             }
+        }
+    }
+    
+    func removeOldestEnemy() {
+        if let enemy = enemies.first {
+            enemy.removeFromParent()
+            enemies.removeFirst()
         }
     }
 }
