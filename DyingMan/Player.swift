@@ -1,3 +1,10 @@
+//
+//  Player.swift
+//  DyingMan
+//
+//  Created by 田中大翔 on 2023/03/20.
+//
+
 import Foundation
 import SpriteKit
 
