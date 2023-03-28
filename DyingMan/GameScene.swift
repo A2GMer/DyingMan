@@ -378,16 +378,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func scrollBackgroundTiles() {
+        let cameraY = gameCamera.position.y
         for tile in backgroundTiles {
-            if player.position.y - tile.position.y > backgroundTileHeight {
-                tile.position = CGPoint(x: tile.position.x, y: tile.position.y + CGFloat(backgroundTiles.count) * backgroundTileHeight)
+            if tile.position.y + backgroundTileHeight < cameraY - size.height / 2 {
+                tile.position.y += backgroundTileHeight * CGFloat(backgroundTiles.count)
             }
         }
     }
     
-    func removeOldestEnemy() {
-        if let enemy = enemies.first {
-            enemy.removeFromParent()
+    private func removeOldestEnemy() {
+        if let enemyToRemove = enemies.first {
+            enemyToRemove.removeFromParent()
             enemies.removeFirst()
         }
     }
