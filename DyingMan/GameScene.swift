@@ -355,7 +355,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             // Add these lines to clamp the player's position
             player.position.x = min(max(player.position.x, player.size.width / 2), size.width - player.size.width / 2)
-            player.position.y = min(max(player.position.y, player.size.height / 2), size.height - player.size.height / 2)
+            player.position.y = player.position.y
+
         }
     }
     
@@ -377,5 +378,4 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
     }
-
 }
